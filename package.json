@@ -1,0 +1,33 @@
+{
+    "name"            : "splink-smvc"
+  , "description"     : "Node.JS Server MVC(ish) Framework built on Splink"
+  , "authors": [
+        "Rod Vagg @rvagg <rod@vagg.org> (https://github.com/rvagg)"
+    ]
+  , "keywords"        : [
+        "framework"
+      , "mvc"
+      , "server"
+      , "http"
+    ]
+  , "version"         : "0.0.0"
+  , "main"            : "lib"
+  , "dependencies"    : {
+        "async"         : "~0.1.22"
+      , "splink"        : "*"
+      , "director"      : "~1.1.7"
+      , "st"            : "~0.1.0"
+      , "consolidate"   : "~0.5.0"
+    }
+  , "devDependencies" : {
+        "buster"        : "*"
+    }
+  , "repository": {
+        "type": "git"
+      , "url": "https://github.com/rvagg/splink.git"
+    }
+  , "scripts"         : {
+        "test"            : "./node_modules/.bin/buster-test"
+    }
+  , "license"         : "MIT"
+}
