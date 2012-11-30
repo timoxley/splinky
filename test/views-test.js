@@ -3,12 +3,16 @@ var buster      = require('buster')
   , consolidate = require('consolidate')
   , fs          = require('fs')
   , splinksmvc  = require('../lib/')
+  , hijackSplinkScan  = require('./common').hijackSplinkScan
+  , restoreSplinkScan = require('./common').restoreSplinkScan
 
 buster.testCase('Views', {
     'setUp': function () {
       this.consolidateMock = this.mock(consolidate)
       this.fsMock          = this.mock(fs)
     }
+
+  , 'tearDown': restoreSplinkScan
 
   , 'test no processor': function (done) {
       var model = { model: 1 }
@@ -174,15 +178,18 @@ buster.testCase('Views', {
         , ssmvc
         , viewfn
 
+      hijackSplinkScan(function (splink) {
+        splink.reg(stub, 'vpid')
+      })
+
       ssmvc = splinksmvc({
           'views': {
               path: '/a/path/to/views'
             , suffix: 'swag'
             , processor: 'vpid'
           }
+        , scan: '/foo/bar/'
       })
-
-      ssmvc._splink.byId('externalSplink').reg(stub, 'vpid')
 
       viewfn = ssmvc._splink.byId('viewHandler')
 

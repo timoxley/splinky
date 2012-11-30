@@ -20,7 +20,7 @@ buster.testCase('Static', {
   , 'test no static': function () {
       var spy = this.spy()
       this.replaceSt(spy)
-      splinksmvc({})
+      splinksmvc({})._splink.byId('server')
       assert.equals(spy.callCount, 0)
     }
 
@@ -31,7 +31,7 @@ buster.testCase('Static', {
       stub.returns(mount)
       this.replaceSt(stub)
 
-      splinksmvc({ 'static': '/foo/bar/' })
+      splinksmvc({ 'static': '/foo/bar/' })._splink.byId('server')
 
       assert.equals(stub.callCount, 1)
       assert.equals(stub.getCall(0).args, [ '/foo/bar/' ])
@@ -45,7 +45,7 @@ buster.testCase('Static', {
       stub.returns(mount)
       this.replaceSt(stub)
 
-      splinksmvc({ 'static': config })
+      splinksmvc({ 'static': config })._splink.byId('server')
 
       assert.equals(stub.callCount, 1)
       assert.equals(stub.getCall(0).args.length, 1)
@@ -85,7 +85,7 @@ buster.testCase('Static', {
         this.replaceSt(stub)
         mount.returns(false) // static resource not found
 
-        splinksmvc({ 'static': config })
+        splinksmvc({ 'static': config })._splink.byId('server')
 
         handler = expectation.getCall(0).args[0]
 
@@ -112,7 +112,7 @@ buster.testCase('Static', {
         this.replaceSt(stub)
         mount.returns(true) // static resource found
 
-        splinksmvc({ 'static': config })
+        splinksmvc({ 'static': config })._splink.byId('server')
 
         handler = expectation.getCall(0).args[0]
 

@@ -5,7 +5,7 @@ var buster     = require('buster')
   , hijackSplinkScan  = require('./common').hijackSplinkScan
   , restoreSplinkScan = require('./common').restoreSplinkScan
 
-buster.testCase('Basic', {
+buster.testCase('Init', {
     'start()': {
         'test listen': function () {
           var httpMock = this.mock(require('http'))
