@@ -6,6 +6,7 @@ var buster     = require('buster')
   , splinksmvc = require('../lib/')
   , hijackSplinkScan  = require('./common').hijackSplinkScan
   , restoreSplinkScan = require('./common').restoreSplinkScan
+  , setupServerMocks  = require('./common').setupServerMocks
 
 buster.testCase('Controllers', {
     'setUp': function () {
@@ -18,6 +19,9 @@ buster.testCase('Controllers', {
         return RouterOrig.apply(this, arguments)
       }
       director.http.Router.prototype = RouterOrig.prototype
+
+      setupServerMocks.call(this)
+      this.serverMock.expects('listen').once()
     }
 
   , 'tearDown': function () {
@@ -25,7 +29,7 @@ buster.testCase('Controllers', {
       director.http.Router = this.RouterOrig
     }
 
-  , 'single controller for / attaches to router': function () {
+  , 'single controller for / attaches to router': function (done) {
       var spy = this.spy()
         , ssmvc
 
@@ -34,15 +38,16 @@ buster.testCase('Controllers', {
         splink.reg(spy)
       })
 
-      ssmvc = splinksmvc({ scan: '/foo/bar/' })
-
-      assert.equals(typeof this.router.routes.get, 'function')
-      assert.equals(spy.callCount, 0)
-      this.router.routes.get()
-      assert.equals(spy.callCount, 1)
+      ssmvc = splinksmvc({ scan: '/foo/bar/' }).start(function () {
+        assert.equals(typeof this.router.routes.get, 'function')
+        assert.equals(spy.callCount, 0)
+        this.router.routes.get()
+        assert.equals(spy.callCount, 1)
+        done()
+      }.bind(this))
     }
 
-  , 'single controller for /foo attaches to router': function () {
+  , 'single controller for /foo attaches to router': function (done) {
       var spy = this.spy()
         , ssmvc
 
@@ -51,15 +56,16 @@ buster.testCase('Controllers', {
         splink.reg(spy)
       })
 
-      ssmvc = splinksmvc({ scan: '/foo/bar/' })
-
-      assert.equals(typeof this.router.routes.foo.get, 'function')
-      assert.equals(spy.callCount, 0)
-      this.router.routes.foo.get()
-      assert.equals(spy.callCount, 1)
+      ssmvc = splinksmvc({ scan: '/foo/bar/' }).start(function () {
+        assert.equals(typeof this.router.routes.foo.get, 'function')
+        assert.equals(spy.callCount, 0)
+        this.router.routes.foo.get()
+        assert.equals(spy.callCount, 1)
+        done()
+      }.bind(this))
     }
 
-  , 'single controller for post:/foo attaches to router': function () {
+  , 'single controller for post:/foo attaches to router': function (done) {
       var spy = this.spy()
         , ssmvc
 
@@ -68,15 +74,16 @@ buster.testCase('Controllers', {
         splink.reg(spy)
       })
 
-      ssmvc = splinksmvc({ scan: '/foo/bar/' })
-
-      assert.equals(typeof this.router.routes.foo.post, 'function')
-      assert.equals(spy.callCount, 0)
-      this.router.routes.foo.post()
-      assert.equals(spy.callCount, 1)
+      ssmvc = splinksmvc({ scan: '/foo/bar/' }).start(function () {
+        assert.equals(typeof this.router.routes.foo.post, 'function')
+        assert.equals(spy.callCount, 0)
+        this.router.routes.foo.post()
+        assert.equals(spy.callCount, 1)
+        done()
+      }.bind(this))
     }
 
-  , 'single controller for multiple routes attaches to router': function () {
+  , 'single controller for multiple routes attaches to router': function (done) {
       var spy = this.spy()
         , ssmvc
 
@@ -85,24 +92,25 @@ buster.testCase('Controllers', {
         splink.reg(spy)
       })
 
-      ssmvc = splinksmvc({ scan: '/foo/bar/' })
+      ssmvc = splinksmvc({ scan: '/foo/bar/' }).start(function () {
+        assert.equals(spy.callCount, 0)
 
-      assert.equals(spy.callCount, 0)
+        assert.equals(typeof this.router.routes.foo.get, 'function')
+        this.router.routes.foo.get()
+        assert.equals(spy.callCount, 1)
 
-      assert.equals(typeof this.router.routes.foo.get, 'function')
-      this.router.routes.foo.get()
-      assert.equals(spy.callCount, 1)
+        assert.equals(typeof this.router.routes.foo.bar.get, 'function')
+        this.router.routes.foo.bar.get()
+        assert.equals(spy.callCount, 2)
 
-      assert.equals(typeof this.router.routes.foo.bar.get, 'function')
-      this.router.routes.foo.bar.get()
-      assert.equals(spy.callCount, 2)
-
-      assert.equals(typeof this.router.routes.bar.get, 'function')
-      this.router.routes.bar.get()
-      assert.equals(spy.callCount, 3)
+        assert.equals(typeof this.router.routes.bar.get, 'function')
+        this.router.routes.bar.get()
+        assert.equals(spy.callCount, 3)
+        done()
+      }.bind(this))
     }
 
-  , 'multiple controllers attach to router': function () {
+  , 'multiple controllers attach to router': function (done) {
       var spy1 = this.spy()
         , spy2 = this.spy()
         , ssmvc
@@ -114,20 +122,21 @@ buster.testCase('Controllers', {
         splink.reg(spy2)
       })
 
-      ssmvc = splinksmvc({ scan: '/foo/bar/' })
+      ssmvc = splinksmvc({ scan: '/foo/bar/' }).start(function () {
+        assert.equals(typeof this.router.routes.foo.get, 'function')
+        assert.equals(spy1.callCount, 0)
+        this.router.routes.foo.get()
+        assert.equals(spy1.callCount, 1)
 
-      assert.equals(typeof this.router.routes.foo.get, 'function')
-      assert.equals(spy1.callCount, 0)
-      this.router.routes.foo.get()
-      assert.equals(spy1.callCount, 1)
-
-      assert.equals(typeof this.router.routes.bar.get, 'function')
-      assert.equals(spy2.callCount, 0)
-      this.router.routes.bar.get()
-      assert.equals(spy2.callCount, 1)
+        assert.equals(typeof this.router.routes.bar.get, 'function')
+        assert.equals(spy2.callCount, 0)
+        this.router.routes.bar.get()
+        assert.equals(spy2.callCount, 1)
+        done()
+      }.bind(this))
     }
 
-  , 'controller is passed correct context': function () {
+  , 'controller is passed correct context': function (done) {
       var spy = this.spy()
         , ssmvc
         , ctx = { ctx: 'this is the context!' }
@@ -137,20 +146,21 @@ buster.testCase('Controllers', {
         splink.reg(spy)
       })
 
-      ssmvc = splinksmvc({ scan: '/foo/bar/' })
+      ssmvc = splinksmvc({ scan: '/foo/bar/' }).start(function () {
+        assert.equals(typeof this.router.routes.get, 'function')
+        assert.equals(spy.callCount, 0)
+        this.router.routes.get.call(ctx)
+        assert.equals(spy.callCount, 1)
 
-      assert.equals(typeof this.router.routes.get, 'function')
-      assert.equals(spy.callCount, 0)
-      this.router.routes.get.call(ctx)
-      assert.equals(spy.callCount, 1)
-
-      // the trick here is that we don't care whether it's the exact context or
-      // the context is in the prototype chain, as long as its properties are available
-      // so comparing thisValue to ctx is too strict
-      assert.same(spy.getCall(0).thisValue.ctx, ctx.ctx)
+        // the trick here is that we don't care whether it's the exact context or
+        // the context is in the prototype chain, as long as its properties are available
+        // so comparing thisValue to ctx is too strict
+        assert.same(spy.getCall(0).thisValue.ctx, ctx.ctx)
+        done()
+      }.bind(this))
     }
 
-  , 'controller can return view': function () {
+  , 'controller can return view': function (done) {
       var controllerStub = this.stub()
         , viewSpy = this.spy()
         , fsMock = this.mock(fs)
@@ -169,15 +179,16 @@ buster.testCase('Controllers', {
             , suffix: 'swag'
             , processor: 'viewSpy'
           }
-      })
+      }).start(function () {
+        controllerStub.returns('foobarViewbar')
+        fsMock.expects('stat', '/foobarViewbar.swag').callsArgWith(1, null, { isFile: function () { return true } })
 
-      controllerStub.returns('foobarViewbar')
-      fsMock.expects('stat', '/foobarViewbar.swag').callsArgWith(1, null, { isFile: function () { return true } })
-
-      assert.equals(controllerStub.callCount, 0)
-      assert.equals(viewSpy.callCount, 0)
-      this.router.routes.get.call(ctx)
-      assert.equals(controllerStub.callCount, 1)
-      assert.equals(viewSpy.callCount, 1)
+        assert.equals(controllerStub.callCount, 0)
+        assert.equals(viewSpy.callCount, 0)
+        this.router.routes.get.call(ctx)
+        assert.equals(controllerStub.callCount, 1)
+        assert.equals(viewSpy.callCount, 1)
+        done()
+      }.bind(this))
     }
 })

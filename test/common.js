@@ -17,3 +17,9 @@ module.exports.restoreSplinkScan = function () {
     Splink.prototype.scanPathSync = Splink.prototype._scanPathSync
 }
 
+module.exports.setupServerMocks = function () {
+  this.httpMock = this.mock(require('http'))
+  this.server = { listen: function () {} }
+  this.serverMock = this.mock(this.server)
+  this.httpMock.expects('createServer').once().returns(this.server)
+}

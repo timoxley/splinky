@@ -4,6 +4,7 @@ var buster     = require('buster')
   , splinksmvc = require('../lib/')
   , hijackSplinkScan  = require('./common').hijackSplinkScan
   , restoreSplinkScan = require('./common').restoreSplinkScan
+  , setupServerMocks  = require('./common').setupServerMocks
 
 buster.testCase('Init', {
     'start()': {

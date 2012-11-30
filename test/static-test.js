@@ -78,7 +78,7 @@ buster.testCase('Static', {
           , expectation
           , handler
           , req = { method: 'get' }
-          , res = { writeHead: function () {}, end: this.spy() }
+          , res = { setHeader: function () {}, writeHead: function () {}, end: this.spy() }
 
         expectation = httpMock.expects('createServer').once().returns(server)
         stub.returns(mount)
@@ -105,7 +105,7 @@ buster.testCase('Static', {
           , expectation
           , handler
           , req = { method: 'get' }
-          , res = { writeHead: function () {}, end: this.spy() }
+          , res = { setHeader: function () {}, writeHead: function () {}, end: this.spy() }
 
         expectation = httpMock.expects('createServer').once().returns(server)
         stub.returns(mount)
