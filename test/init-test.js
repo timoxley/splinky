@@ -8,31 +8,31 @@ var buster     = require('buster')
 
 buster.testCase('Init', {
     'start()': {
-        'test listen': function () {
+        'test listen': function (done) {
           var httpMock = this.mock(require('http'))
             , server = { listen: function () {} }
             , serverMock = this.mock(server)
           httpMock.expects('createServer').once().returns(server)
           serverMock.expects('listen').once().withExactArgs(80)
-          splinksmvc({}).start()
+          splinksmvc({}).start(done)
         }
 
-      , 'test listen, custom port in options': function () {
+      , 'test listen, custom port in options': function (done) {
           var httpMock = this.mock(require('http'))
             , server = { listen: function () {} }
             , serverMock = this.mock(server)
           httpMock.expects('createServer').once().returns(server)
           serverMock.expects('listen').once().withExactArgs(8080)
-          splinksmvc({ port: 8080 }).start()
+          splinksmvc({ port: 8080 }).start(done)
         }
 
-      , 'test listen, custom port in start() argument': function () {
+      , 'test listen, custom port in start() argument': function (done) {
           var httpMock = this.mock(require('http'))
             , server = { listen: function () {} }
             , serverMock = this.mock(server)
           httpMock.expects('createServer').once().returns(server)
           serverMock.expects('listen').once().withExactArgs(8888)
-          splinksmvc({ }).start(8888)
+          splinksmvc({ }).start(8888, done)
         }
     }
 
