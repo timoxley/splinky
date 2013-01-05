@@ -251,7 +251,7 @@ buster.testCase('Views', {
 
       viewfn(data, model, function (err, _data) {
         refute(err)
-        assert.equals(_data, 'BOOYA!')
+        assert.equals(_data, { content: 'BOOYA!', contentType: 'text/plain' })
         done()
       })
     }
@@ -272,7 +272,7 @@ buster.testCase('Views', {
 
       viewfn(data, model, function (err, _data) {
         refute(err)
-        assert.equals(_data, JSON.stringify(data, null, 2))
+        assert.equals(_data, { content: JSON.stringify(data, null, 2), contentType: 'application/json' })
         done()
       })
     }
