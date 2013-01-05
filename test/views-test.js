@@ -21,7 +21,7 @@ buster.testCase('Views', {
 
       ssmvc = splinksmvc({})
 
-      viewfn = ssmvc._splink.byId('viewHandler')
+      viewfn = ssmvc._splink.byId('viewManager')()
 
       assert.equals(typeof viewfn, 'function')
 
@@ -47,7 +47,7 @@ buster.testCase('Views', {
           }
       })
 
-      viewfn = ssmvc._splink.byId('viewHandler')
+      viewfn = ssmvc._splink.byId('viewManager')()
 
       assert.equals(typeof viewfn, 'function')
 
@@ -93,7 +93,7 @@ buster.testCase('Views', {
                   }
               ]
           })
-          this.viewfn = this.ssmvc._splink.byId('viewHandler')
+          this.viewfn = this.ssmvc._splink.byId('viewManager')()
           assert.equals(typeof this.viewfn, 'function')
         }
 
@@ -160,7 +160,7 @@ buster.testCase('Views', {
           }
       })
 
-      viewfn = ssmvc._splink.byId('viewHandler')
+      viewfn = ssmvc._splink.byId('viewManager')()
 
       assert.equals(typeof viewfn, 'function')
 
@@ -191,7 +191,7 @@ buster.testCase('Views', {
         , scan: '/foo/bar/'
       })
 
-      viewfn = ssmvc._splink.byId('viewHandler')
+      viewfn = ssmvc._splink.byId('viewManager')()
 
       assert.equals(typeof viewfn, 'function')
 
@@ -207,4 +207,128 @@ buster.testCase('Views', {
         done()
       })
     }
+
+  , 'test non-path processor': function (done) {
+      var stub  = this.stub()
+        , model = { model: 1 }
+        , data  = { data: 1 }
+        , ssmvc
+        , viewfn
+
+      ssmvc = splinksmvc({
+          'views': { processor: stub }
+      })
+
+      viewfn = ssmvc._splink.byId('viewManager')()
+
+      assert.equals(typeof viewfn, 'function')
+
+      stub.callsArgWith(2, null, data)
+
+      viewfn('foobar', model, function (err, _data) {
+        refute(err)
+        assert.same(_data, data)
+        assert.equals(stub.callCount, 1)
+        assert.equals(stub.getCall(0).args[0], 'foobar')
+        assert.equals(stub.getCall(0).args[1], model)
+        done()
+      })
+    }
+
+  , 'test toString processor': function (done) {
+      var model = { model: 1 }
+        , data  = { data: 1, toString: function () { return 'BOOYA!' } }
+        , ssmvc
+        , viewfn
+
+      ssmvc = splinksmvc({
+          'views': { processor: 'toStringViewProcessor' }
+      })
+
+      viewfn = ssmvc._splink.byId('viewManager')()
+
+      assert.equals(typeof viewfn, 'function')
+
+      viewfn(data, model, function (err, _data) {
+        refute(err)
+        assert.equals(_data, 'BOOYA!')
+        done()
+      })
+    }
+
+  , 'test json processor': function (done) {
+      var model = { model: 1 }
+        , data  = { data: 1 }
+        , ssmvc
+        , viewfn
+
+      ssmvc = splinksmvc({
+          'views': { processor: 'jsonViewProcessor' }
+      })
+
+      viewfn = ssmvc._splink.byId('viewManager')()
+
+      assert.equals(typeof viewfn, 'function')
+
+      viewfn(data, model, function (err, _data) {
+        refute(err)
+        assert.equals(_data, JSON.stringify(data, null, 2))
+        done()
+      })
+    }
+
+  , 'test controller-supplied processor': function (done) {
+      var stub1 = this.stub()
+        , stub2 = this.stub()
+        , model = { model: 1 }
+        , data  = { data: 1 }
+        , ssmvc
+        , viewfn
+
+      stub1.callsArgWith(2, null, data)
+      stub2.callsArgWith(2, null, data)
+
+      ssmvc = splinksmvc({
+          'views': {
+              path: '/a/path/to/views'
+            , suffix: 'swag'
+            , processor: stub1
+          }
+      })
+
+      viewfn = ssmvc._splink.byId('viewManager')()
+
+      assert.equals(typeof viewfn, 'function')
+
+      this.fsMock.expects('stat', '/a/path/to/views/foobar.swag').callsArgWith(1, null, { isFile: function () { return true } })
+
+      viewfn('foobar', model, function (err, _data) {
+        refute(err)
+        assert.same(_data, data)
+        assert.equals(stub1.callCount, 1)
+        assert.equals(stub2.callCount, 0)
+        assert.equals(stub1.getCall(0).args[0], '/a/path/to/views/foobar.swag')
+        assert.equals(stub1.getCall(0).args[1], model)
+
+        viewfn = ssmvc._splink.byId('viewManager')({
+            path: '/gaws/path'
+          , suffix: 'gaws'
+          , processor: stub2
+        })
+
+        this.fsMock.expects('stat', '/a/path/to/views/foobarbaz.swag').callsArgWith(1, 'does not exist')
+        this.fsMock.expects('stat', '/gaws/path/foobarbaz.gaws').callsArgWith(1, null, { isFile: function () { return true } })
+
+        viewfn('foobarbaz', model, function (err, _data) {
+          refute(err)
+          assert.same(_data, data)
+          assert.equals(stub1.callCount, 1)
+          assert.equals(stub2.callCount, 1)
+          assert.equals(stub2.getCall(0).args[0], '/gaws/path/foobarbaz.gaws')
+          assert.equals(stub2.getCall(0).args[1], model)
+          done()
+        })
+      }.bind(this))
+    }
+
 })
