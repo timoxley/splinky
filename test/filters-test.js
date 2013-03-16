@@ -1,5 +1,6 @@
-var buster     = require('buster')
-  , assert     = buster.assert
+var buster     = require('bustermove')
+  , assert     = require('referee').assert
+  , refute     = require('referee').refute
   , director   = require('director')
   , extend     = require('util')._extend
 
@@ -23,10 +24,11 @@ buster.testCase('Filters', {
       setupServerMocks.call(this)
       this.serverMock.expects('listen').once()
 
-      this.registerController = function (config, controller, callback) {
+      this.registerController = function (config, controller, viewProcessor, callback) {
         controller.__meta__ = extend({ category: 'controller', route: '/' }, config)
         hijackSplinkScan(function (splink) {
           splink.reg(controller)
+          splink.reg(viewProcessor, { type: 'viewProcessor', id: 'vpstub' })
           callback && callback(null, splink)
         })
       }
@@ -37,14 +39,16 @@ buster.testCase('Filters', {
           route = null
         }
 
-        splinksmvc(extend({ scan: '/foo/bar/' }, config)).start(function () {
-          var r = this.router.routes
-          if (route) r = r[route]
-          r = r.get
-          assert.equals(typeof r, 'function')
-          r()
-          callback()
-        }.bind(this))
+        splinksmvc(
+            extend({ scan: '/foo/bar/', views: { processor: 'vpstub' } }, config)
+          ).start(function () {
+              var r = this.router.routes
+              if (route) r = r[route]
+              r = r.get
+              assert.equals(typeof r, 'function')
+              r()
+              callback()
+            }.bind(this))
       }
     }
 
@@ -55,12 +59,13 @@ buster.testCase('Filters', {
 
   , 'single filter is used': function (done) {
       var filter     = this.stub()
+        , viewStub   = this.stub()
         , config     = { filters: [ filter ] }
         , controller = this.spy()
 
       filter.callsArg(2)
 
-      this.registerController({}, controller)
+      this.registerController({}, controller, viewStub)
       this.executeController(config, function () {
         assert.equals(controller.callCount, 1)
         assert.equals(filter.callCount, 1)
@@ -72,6 +77,7 @@ buster.testCase('Filters', {
       var filter1    = this.stub()
         , filter2    = this.stub()
         , filter3    = this.stub()
+        , viewStub   = this.stub()
         , config     = { filters: [ filter1, filter2, filter3 ] }
         , controller = this.spy()
 
@@ -79,7 +85,7 @@ buster.testCase('Filters', {
       filter2.callsArg(2)
       filter3.callsArg(2)
 
-      this.registerController({}, controller)
+      this.registerController({}, controller, viewStub)
       this.executeController(config, function () {
         assert.equals(controller.callCount, 1)
         assert.equals(filter1.callCount, 1)
@@ -93,6 +99,7 @@ buster.testCase('Filters', {
       var filter1    = this.stub()
         , filter2    = this.stub()
         , filter3    = this.stub()
+        , viewStub   = this.stub()
         , config     = { filters: [ filter1, [ filter2, filter3 ] ] }
         , controller = this.spy()
 
@@ -100,7 +107,7 @@ buster.testCase('Filters', {
       filter2.callsArg(2)
       filter3.callsArg(2)
 
-      this.registerController({}, controller)
+      this.registerController({}, controller, viewStub)
       this.executeController(config, function () {
         assert.equals(controller.callCount, 1)
         assert.equals(filter1.callCount, 1)
@@ -114,6 +121,7 @@ buster.testCase('Filters', {
       var filter1    = this.stub()
         , filter2    = this.stub()
         , filter3    = this.stub()
+        , viewStub   = this.stub()
         , config     = { filters: [ filter1 ] }
         , controller1 = this.spy()
         , controller2 = this.spy()
@@ -133,6 +141,7 @@ buster.testCase('Filters', {
       hijackSplinkScan(function (splink) {
         splink.reg(controller1)
         splink.reg(controller2)
+        splink.reg(viewStub, { type: 'viewProcessor', id: 'vpstub' })
       })
 
       this.executeController(config, function () {
@@ -156,11 +165,12 @@ buster.testCase('Filters', {
 
   , 'single filter from splink scan': function (done) {
       var filter     = this.stub()
+        , viewStub   = this.stub()
         , controller = this.spy()
 
       filter.callsArg(2)
 
-      this.registerController({}, controller, function (err, splink) {
+      this.registerController({}, controller, viewStub, function (err, splink) {
         splink.reg(filter, { category: 'filter' })
       })
       this.executeController({}, function () {
@@ -174,13 +184,14 @@ buster.testCase('Filters', {
       var filter1    = this.stub()
         , filter2    = this.stub()
         , filter3    = this.stub()
+        , viewStub   = this.stub()
         , controller = this.spy()
 
       filter1.callsArg(2)
       filter2.callsArg(2)
       filter3.callsArg(2)
 
-      this.registerController({}, controller, function (err, splink) {
+      this.registerController({}, controller, viewStub, function (err, splink) {
         splink.reg(filter1, { category: 'filter' })
         splink.reg(filter2, { category: 'filter' })
         splink.reg(filter3, { category: 'filter' })
@@ -208,8 +219,9 @@ buster.testCase('Filters', {
         , filter3    = mkfilter('three')
         , config     = { filters: [ filter1, filter2, filter3 ] }
         , controller = this.spy()
+        , viewStub   = this.stub()
 
-      this.registerController({}, controller)
+      this.registerController({}, controller, viewStub)
       this.executeController(config, function () {
         setTimeout(function () { // unfortunate hack, need a better way of intercepting the controller call
           assert.equals(controller.callCount, 1)
@@ -232,8 +244,9 @@ buster.testCase('Filters', {
         , filter2    = mkfilter('two')
         , filter3    = mkfilter('three')
         , controller = this.spy()
+        , viewStub   = this.stub()
 
-      this.registerController({}, controller, function (err, splink) {
+      this.registerController({}, controller, viewStub, function (err, splink) {
         // register shuffled
         splink.reg(filter3, { category: 'filter', id: 'filter03' })
         splink.reg(filter1, { category: 'filter', id: 'filter01' })
@@ -262,10 +275,11 @@ buster.testCase('Filters', {
         , filter2    = mkfilter('two')
         , filter3    = mkfilter('three')
         , controller = this.spy()
+        , viewStub   = this.stub()
 
       filter2.__meta__ = { id: 'filter02' }
 
-      this.registerController({}, controller, function (err, splink) {
+      this.registerController({}, controller, viewStub, function (err, splink) {
         // register shuffled
         splink.reg(filter3, { category: 'filter', id: 'filter03' })
         splink.reg(filter1, { category: 'filter', id: 'filter01' })
@@ -295,8 +309,9 @@ buster.testCase('Filters', {
         , filter3    = mkfilter('three')
         , filter4    = mkfilter('four')
         , controller = this.spy()
+        , viewStub   = this.stub()
 
-      this.registerController({ filters: [ filter4 ]}, controller, function (err, splink) {
+      this.registerController({ filters: [ filter4 ]}, controller, viewStub, function (err, splink) {
         // register shuffled
         splink.reg(filter3, { category: 'filter', id: 'filter03' })
         splink.reg(filter1, { category: 'filter', id: 'filter01' })
@@ -326,8 +341,9 @@ buster.testCase('Filters', {
         , filter3    = mkfilter('three')
         , filter4    = mkfilter('four')
         , controller = this.spy()
+        , viewStub   = this.stub()
 
-      this.registerController({ filters: [ 'filter04' ]}, controller, function (err, splink) {
+      this.registerController({ filters: [ 'filter04' ]}, controller, viewStub, function (err, splink) {
         // register shuffled
         splink.reg(filter2, { id: 'filter02' })
         splink.reg(filter4, { id: 'filter04' })
