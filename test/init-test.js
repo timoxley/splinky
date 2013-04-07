@@ -72,13 +72,12 @@ buster.testCase('Init', {
       , 'test router options configures director': function () {
           var opt = { opt: 1 }
           splinksmvc({})
-          // director has 2 internal configure() calls for the http router
-          assert.equals(director.http.Router.prototype.configure.callCount, 2)
+          assert.equals(director.http.Router.prototype.configure.callCount, 1)
           director.http.Router.prototype.configure.reset()
           splinksmvc({ router: opt })
           // an extra one should be called with our options
-          assert.equals(director.http.Router.prototype.configure.callCount, 3)
-          assert.equals(director.http.Router.prototype.configure.getCall(2).args, [ opt ])
+          assert.equals(director.http.Router.prototype.configure.callCount, 2)
+          assert.equals(director.http.Router.prototype.configure.getCall(1).args, [ opt ])
         }
 
       , 'tearDown': function () {
