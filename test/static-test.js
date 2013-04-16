@@ -53,6 +53,23 @@ buster.testCase('Static', {
       assert.same(stub.getCall(0).args[0], config)
     }
 
+
+  , 'test multiple static mounts string': function () {
+      var stub = this.stub()
+        , mount = { mount: 1 }
+        , config = { config: 1 }
+
+      stub.returns(mount)
+      this.replaceSt(stub)
+
+      splinksmvc({ 'static':  [ '/foo/bar/', '/baz/bang/', config ] })._splink.byId('server')
+
+      assert.equals(stub.callCount, 3)
+      assert.equals(stub.getCall(0).args, [ '/foo/bar/' ])
+      assert.equals(stub.getCall(1).args, [ '/baz/bang/' ])
+      assert.same(stub.getCall(2).args[0], config)
+    }
+
   , 'test static used for http requests': {
       'setUp': function () {
         var RouterOrig = this.RouterOrig = director.http.Router
@@ -121,6 +138,45 @@ buster.testCase('Static', {
         assert.equals(res.end.callCount, 0)
         handler(req, res)
         assert.equals(mount.callCount, 1)
+        assert.equals(res.end.callCount, 0) // should NOT move on from static
+      }
+
+    , 'multiple mount points': function () {
+        var httpMock = this.mock(require('http'))
+          , server = { }
+          , stub = this.stub()
+          , mount1 = this.stub()
+          , mount2 = this.stub()
+          , mount3 = this.stub()
+          , config1 = { config: 1 }
+          , config2 = { config: 2 }
+          , config3 = { config: 3 }
+          , expectation
+          , handler
+          , req = { method: 'get' }
+          , res = { setHeader: function () {}, writeHead: function () {}, end: this.spy() }
+
+        expectation = httpMock.expects('createServer').once().returns(server)
+        stub.withArgs(config1).returns(mount1)
+        stub.withArgs(config2).returns(mount2)
+        stub.withArgs(config3).returns(mount3)
+        this.replaceSt(stub)
+        mount1.returns(false) // static not resource found
+        mount2.returns(false) // static not resource found
+        mount3.returns(true) // static resource found
+
+        splinksmvc({ 'static': [ config1, config2, config3 ] })._splink.byId('server')
+
+        handler = expectation.getCall(0).args[0]
+
+        assert.equals(mount1.callCount, 0)
+        assert.equals(mount2.callCount, 0)
+        assert.equals(mount3.callCount, 0)
+        assert.equals(res.end.callCount, 0)
+        handler(req, res)
+        assert.equals(mount1.callCount, 1)
+        assert.equals(mount2.callCount, 1)
+        assert.equals(mount3.callCount, 1)
         assert.equals(res.end.callCount, 0) // should NOT move on from static
       }
   }
