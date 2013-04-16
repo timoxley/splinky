@@ -87,7 +87,7 @@ buster.testCase('Static', {
         director.http.Router = this.RouterOrig
       }
 
-    , 'exec return true': function () {
+    , 'exec return true': function (done) {
         var httpMock = this.mock(require('http'))
           , server = { }
           , stub = this.stub()
@@ -101,7 +101,7 @@ buster.testCase('Static', {
         expectation = httpMock.expects('createServer').once().returns(server)
         stub.returns(mount)
         this.replaceSt(stub)
-        mount.returns(false) // static resource not found
+        mount.callsArg(2) // static resource not found
 
         splinksmvc({ 'static': config })._splink.byId('server')
 
@@ -110,11 +110,14 @@ buster.testCase('Static', {
         assert.equals(mount.callCount, 0)
         assert.equals(res.end.callCount, 0)
         handler(req, res)
-        assert.equals(mount.callCount, 1)
-        assert.equals(res.end.callCount, 1) // should move on from static
+        process.nextTick(function () {
+          assert.equals(mount.callCount, 1)
+          assert.equals(res.end.callCount, 1) // should move on from static
+          done()
+        })
       }
 
-    , 'exec return false': function () {
+    , 'exec return false': function (done) {
         var httpMock = this.mock(require('http'))
           , server = { }
           , stub = this.stub()
@@ -128,7 +131,6 @@ buster.testCase('Static', {
         expectation = httpMock.expects('createServer').once().returns(server)
         stub.returns(mount)
         this.replaceSt(stub)
-        mount.returns(true) // static resource found
 
         splinksmvc({ 'static': config })._splink.byId('server')
 
@@ -137,11 +139,14 @@ buster.testCase('Static', {
         assert.equals(mount.callCount, 0)
         assert.equals(res.end.callCount, 0)
         handler(req, res)
-        assert.equals(mount.callCount, 1)
-        assert.equals(res.end.callCount, 0) // should NOT move on from static
+        process.nextTick(function () {
+          assert.equals(mount.callCount, 1)
+          assert.equals(res.end.callCount, 0) // should NOT move on from static
+          done()
+        })
       }
 
-    , 'multiple mount points': function () {
+    , 'multiple mount points': function (done) {
         var httpMock = this.mock(require('http'))
           , server = { }
           , stub = this.stub()
@@ -161,9 +166,8 @@ buster.testCase('Static', {
         stub.withArgs(config2).returns(mount2)
         stub.withArgs(config3).returns(mount3)
         this.replaceSt(stub)
-        mount1.returns(false) // static not resource found
-        mount2.returns(false) // static not resource found
-        mount3.returns(true) // static resource found
+        mount1.callsArg(2) // static not resource found
+        mount2.callsArg(2) // static not resource found
 
         splinksmvc({ 'static': [ config1, config2, config3 ] })._splink.byId('server')
 
@@ -174,10 +178,13 @@ buster.testCase('Static', {
         assert.equals(mount3.callCount, 0)
         assert.equals(res.end.callCount, 0)
         handler(req, res)
-        assert.equals(mount1.callCount, 1)
-        assert.equals(mount2.callCount, 1)
-        assert.equals(mount3.callCount, 1)
-        assert.equals(res.end.callCount, 0) // should NOT move on from static
+        process.nextTick(function () {
+          assert.equals(mount1.callCount, 1)
+          assert.equals(mount2.callCount, 1)
+          assert.equals(mount3.callCount, 1)
+          assert.equals(res.end.callCount, 0) // should NOT move on from static
+          done()
+        })
       }
   }
 })
