@@ -1,9 +1,9 @@
-var buster     = require('bustermove')
-  , assert     = require('referee').assert
-  , refute     = require('referee').refute
-  , consolidate = require('consolidate')
-  , fs          = require('fs')
-  , splinksmvc  = require('../lib/')
+var buster            = require('bustermove')
+  , assert            = buster.assert
+  , refute            = buster.refute
+  , consolidate       = require('consolidate')
+  , fs                = require('fs')
+  , splinksmvc        = require('../lib/')
   , hijackSplinkScan  = require('./common').hijackSplinkScan
   , restoreSplinkScan = require('./common').restoreSplinkScan
 

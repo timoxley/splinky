@@ -10,11 +10,11 @@
       , "server"
       , "http"
     ]
-  , "version"         : "0.0.0-a22"
+  , "version"         : "0.0.1"
   , "main"            : "lib"
   , "dependencies"    : {
         "async"         : "~0.1.22"
-      , "splink"        : "~0.0.0-a"
+      , "splink"        : "~0.0.1"
       , "director"      : "~1.2.0"
       , "st"            : "~0.1.2"
       , "consolidate"   : "~0.5.0"
@@ -22,7 +22,6 @@
   , "devDependencies" : {
         "bustermove"    : "*"
       , "tap"           : "*"
-      , "referee"       : "*"
     }
   , "peerDependencies" : {
         "swig"          : "~0.13.5"

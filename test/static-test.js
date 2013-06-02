@@ -1,8 +1,8 @@
-var buster     = require('bustermove')
-  , assert     = require('referee').assert
-  , refute     = require('referee').refute
-  , path       = require('path')
-  , director   = require('director')
+var buster   = require('bustermove')
+  , assert   = buster.assert
+  , refute   = buster.refute
+  , path     = require('path')
+  , director = require('director')
 
   , splinksmvc = require('../lib/')
 
@@ -95,7 +95,7 @@ buster.testCase('Static', {
           , config = { config: 1 }
           , expectation
           , handler
-          , req = { method: 'get' }
+          , req = { method: 'get', on: function () {} }
           , res = { setHeader: function () {}, writeHead: function () {}, end: this.spy() }
 
         expectation = httpMock.expects('createServer').once().returns(server)
@@ -125,7 +125,7 @@ buster.testCase('Static', {
           , config = { config: 1 }
           , expectation
           , handler
-          , req = { method: 'get' }
+          , req = { method: 'get', on: function () {} }
           , res = { setHeader: function () {}, writeHead: function () {}, end: this.spy() }
 
         expectation = httpMock.expects('createServer').once().returns(server)
@@ -158,7 +158,7 @@ buster.testCase('Static', {
           , config3 = { config: 3 }
           , expectation
           , handler
-          , req = { method: 'get' }
+          , req = { method: 'get', on: function () {} }
           , res = { setHeader: function () {}, writeHead: function () {}, end: this.spy() }
 
         expectation = httpMock.expects('createServer').once().returns(server)

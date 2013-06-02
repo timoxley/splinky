@@ -1,6 +1,6 @@
 var buster     = require('bustermove')
-  , assert     = require('referee').assert
-  , refute     = require('referee').refute
+  , assert     = buster.assert
+  , refute     = buster.refute
   , director   = require('director')
   , fs         = require('fs')
 
@@ -79,7 +79,7 @@ buster.testCase('Controllers', {
         , expectedBody   = 'this is some expected content'
         , ssmvc
 
-      controllerStub.__meta__ = { category: 'controller', route: '/' }
+      controllerStub.$config = { category: 'controller', route: '/' }
       controllerStub.returns(expectedBody)
       hijackSplinkScan(function (splink) {
         splink.reg(controllerStub)
@@ -103,7 +103,7 @@ buster.testCase('Controllers', {
         , expectedBody   = 'this is some expected content'
         , ssmvc
 
-      controllerStub.__meta__ = { category: 'controller', route: '/foo' }
+      controllerStub.$config = { category: 'controller', route: '/foo' }
       controllerStub.returns(expectedBody)
       hijackSplinkScan(function (splink) {
         splink.reg(controllerStub)
@@ -127,7 +127,7 @@ buster.testCase('Controllers', {
         , expectedBody   = 'this is some expected content'
         , ssmvc
 
-      controllerStub.__meta__ = { category: 'controller', route: '/foo', method: 'post' }
+      controllerStub.$config = { category: 'controller', route: '/foo', method: 'post' }
       controllerStub.returns(expectedBody)
       hijackSplinkScan(function (splink) {
         splink.reg(controllerStub)
@@ -151,7 +151,7 @@ buster.testCase('Controllers', {
         , expectedBody   = 'this is some expected content'
         , ssmvc
 
-      controllerStub.__meta__ = {
+      controllerStub.$config = {
           category: 'controller'
         , route: [ '/foo', '/foo/bar', '/bar' ]
       }
@@ -190,8 +190,8 @@ buster.testCase('Controllers', {
         , expectedBody2   = 'this is some expected content 2'
         , ssmvc
 
-      controllerStub1.__meta__ = { category: 'controller', route: '/foo' }
-      controllerStub2.__meta__ = { category: 'controller', route: '/bar' }
+      controllerStub1.$config = { category: 'controller', route: '/foo' }
+      controllerStub2.$config = { category: 'controller', route: '/bar' }
       controllerStub1.returns(expectedBody1)
       controllerStub2.returns(expectedBody2)
       hijackSplinkScan(function (splink) {
@@ -224,7 +224,7 @@ buster.testCase('Controllers', {
         , ctx = { ctx: 'this is the context!' }
         , ssmvc
 
-      controllerStub.__meta__ = { category: 'controller', route: '/' }
+      controllerStub.$config = { category: 'controller', route: '/' }
       controllerStub.returns(expectedBody)
       hijackSplinkScan(function (splink) {
         splink.reg(controllerStub)
@@ -250,7 +250,7 @@ buster.testCase('Controllers', {
         , resStub        = this.createResponseStub()
         , ssmvc
 
-      controllerStub.__meta__ = { category: 'controller', route: '/' }
+      controllerStub.$config = { category: 'controller', route: '/' }
       controllerStub.returns('foobarViewbar')
       hijackSplinkScan(function (splink) {
         splink.reg(controllerStub)

@@ -1,6 +1,6 @@
 var buster     = require('bustermove')
-  , assert     = require('referee').assert
-  , refute     = require('referee').refute
+  , assert     = buster.assert
+  , refute     = buster.refute
   , director   = require('director')
   , extend     = require('util')._extend
 
@@ -25,7 +25,7 @@ buster.testCase('Filters', {
       this.serverMock.expects('listen').once()
 
       this.registerController = function (config, controller, viewProcessor, callback) {
-        controller.__meta__ = extend({ category: 'controller', route: '/' }, config)
+        controller.$config = extend({ category: 'controller', route: '/' }, config)
         hijackSplinkScan(function (splink) {
           splink.reg(controller)
           splink.reg(viewProcessor, { type: 'viewProcessor', id: 'vpstub' })
@@ -136,8 +136,8 @@ buster.testCase('Filters', {
 
       // set these up here because registerController() only does one and we can't
       // call it twice
-      controller1.__meta__ = { category: 'controller', route: '/' }
-      controller2.__meta__ = { category: 'controller', route: '/foo', filters: [ filter2, filter3 ] }
+      controller1.$config = { category: 'controller', route: '/' }
+      controller2.$config = { category: 'controller', route: '/foo', filters: [ filter2, filter3 ] }
       hijackSplinkScan(function (splink) {
         splink.reg(controller1)
         splink.reg(controller2)
@@ -277,7 +277,7 @@ buster.testCase('Filters', {
         , controller = this.spy()
         , viewStub   = this.stub()
 
-      filter2.__meta__ = { id: 'filter02' }
+      filter2.$config = { id: 'filter02' }
 
       this.registerController({}, controller, viewStub, function (err, splink) {
         // register shuffled

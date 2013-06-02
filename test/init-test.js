@@ -1,6 +1,6 @@
-var buster     = require('bustermove')
-  , assert     = require('referee').assert
-  , refute     = require('referee').refute
+var buster = require('bustermove')
+  , assert = buster.assert
+  , refute = buster.refute
 
   , director          = require('director')
   , splinksmvc        = require('../lib/')
