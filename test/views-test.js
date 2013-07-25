@@ -20,7 +20,7 @@ buster.testCase('Views', {
         , ssmvc
         , viewfn
 
-      ssmvc = splinksmvc({})
+      ssmvc = splinksmvc({}).init()
 
       viewfn = ssmvc._splink.byId('viewManager')()
 
@@ -46,7 +46,7 @@ buster.testCase('Views', {
             , suffix: 'swag'
             , processor: stub
           }
-      })
+      }).init()
 
       viewfn = ssmvc._splink.byId('viewManager')()
 
@@ -93,7 +93,7 @@ buster.testCase('Views', {
                     , processor: this.stub3
                   }
               ]
-          })
+          }).init()
           this.viewfn = this.ssmvc._splink.byId('viewManager')()
           assert.equals(typeof this.viewfn, 'function')
         }
@@ -159,7 +159,7 @@ buster.testCase('Views', {
             , suffix: 'swig'
             , processor: 'swig'
           }
-      })
+      }).init()
 
       viewfn = ssmvc._splink.byId('viewManager')()
 
@@ -190,7 +190,7 @@ buster.testCase('Views', {
             , processor: 'vpid'
           }
         , scan: '/foo/bar/'
-      })
+      }).init()
 
       viewfn = ssmvc._splink.byId('viewManager')()
 
@@ -218,7 +218,7 @@ buster.testCase('Views', {
 
       ssmvc = splinksmvc({
           'views': { processor: stub }
-      })
+      }).init()
 
       viewfn = ssmvc._splink.byId('viewManager')()
 
@@ -244,7 +244,7 @@ buster.testCase('Views', {
 
       ssmvc = splinksmvc({
           'views': { processor: 'toStringViewProcessor' }
-      })
+      }).init()
 
       viewfn = ssmvc._splink.byId('viewManager')()
 
@@ -265,7 +265,7 @@ buster.testCase('Views', {
 
       ssmvc = splinksmvc({
           'views': { processor: 'jsonViewProcessor' }
-      })
+      }).init()
 
       viewfn = ssmvc._splink.byId('viewManager')()
 
@@ -295,7 +295,7 @@ buster.testCase('Views', {
             , suffix: 'swag'
             , processor: stub1
           }
-      })
+      }).init()
 
       viewfn = ssmvc._splink.byId('viewManager')()
 

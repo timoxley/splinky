@@ -47,17 +47,17 @@ buster.testCase('Init', {
       , 'tearDown': restoreSplinkScan
 
       , 'test scan argument': function () {
-          splinksmvc({})
+          splinksmvc({}).init()
           assert.equals(this.scanPaths, [])
         }
 
       , 'test single path string': function () {
-          splinksmvc({ scan: '/foo/bar/' })
+          splinksmvc({ scan: '/foo/bar/' }).init()
           assert.equals(this.scanPaths, [ '/foo/bar/' ])
         }
 
       , 'test multiple path strings': function () {
-          splinksmvc({ scan: [ '/foo/bar/', '/bang.js', '/ping/pong/pang' ] })
+          splinksmvc({ scan: [ '/foo/bar/', '/bang.js', '/ping/pong/pang' ] }).init()
           assert.equals(this.scanPaths, [ '/foo/bar/', '/bang.js', '/ping/pong/pang' ])
         }
     }
