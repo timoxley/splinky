@@ -65,6 +65,37 @@ buster.testCase('Views', {
       })
     }
 
+    //TODO: test multiple view configs
+  , 'test simple manual processor views()': function (done) {
+      var stub  = this.stub()
+        , model = { model: 1 }
+        , data  = { data: 1 }
+        , ssmvc
+        , viewfn
+
+      ssmvc = splinksmvc().views({
+          path: '/a/path/to/views'
+        , suffix: 'swag'
+        , processor: stub
+      }).init()
+
+      viewfn = ssmvc._splink.byId('viewManager')()
+
+      assert.equals(typeof viewfn, 'function')
+
+      this.fsMock.expects('stat', '/a/path/to/views/foobar.swag').callsArgWith(1, null, { isFile: function () { return true } })
+      stub.callsArgWith(2, null, data)
+
+      viewfn('foobar', model, function (err, _data) {
+        refute(err)
+        assert.same(_data, data)
+        assert.equals(stub.callCount, 1)
+        assert.equals(stub.getCall(0).args[0], '/a/path/to/views/foobar.swag')
+        assert.equals(stub.getCall(0).args[1], model)
+        done()
+      })
+    }
+
   , 'test multiple manual processors': {
         'setUp': function () {
           this.stub1 = this.stub()

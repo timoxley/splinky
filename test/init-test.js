@@ -56,8 +56,18 @@ buster.testCase('Init', {
           assert.equals(this.scanPaths, [ '/foo/bar/' ])
         }
 
+      , 'test single path scan(string)': function () {
+          splinksmvc().scan('/foo/bar/').init()
+          assert.equals(this.scanPaths, [ '/foo/bar/' ])
+        }
+
       , 'test multiple path strings': function () {
           splinksmvc({ scan: [ '/foo/bar/', '/bang.js', '/ping/pong/pang' ] }).init()
+          assert.equals(this.scanPaths, [ '/foo/bar/', '/bang.js', '/ping/pong/pang' ])
+        }
+
+      , 'test multiple path scan(strings)': function () {
+          splinksmvc().scan([ '/foo/bar/', '/bang.js' ]).scan('/ping/pong/pang').init()
           assert.equals(this.scanPaths, [ '/foo/bar/', '/bang.js', '/ping/pong/pang' ])
         }
     }

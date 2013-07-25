@@ -37,6 +37,19 @@ buster.testCase('Static', {
       assert.equals(stub.getCall(0).args, [ '/foo/bar/' ])
     }
 
+  , 'test static(path string)': function () {
+      var stub = this.stub()
+        , mount = { mount: 1 }
+
+      stub.returns(mount)
+      this.replaceSt(stub)
+
+      splinksmvc().static('/foo/bar/').init()._splink.byId('server')
+
+      assert.equals(stub.callCount, 1)
+      assert.equals(stub.getCall(0).args, [ '/foo/bar/' ])
+    }
+
   , 'test static with full st config': function () {
       var stub = this.stub()
         , mount = { mount: 1 }
@@ -52,6 +65,20 @@ buster.testCase('Static', {
       assert.same(stub.getCall(0).args[0], config)
     }
 
+  , 'test static(with full st config)': function () {
+      var stub = this.stub()
+        , mount = { mount: 1 }
+        , config = { config: 1 }
+
+      stub.returns(mount)
+      this.replaceSt(stub)
+
+      splinksmvc().static(config).init()._splink.byId('server')
+
+      assert.equals(stub.callCount, 1)
+      assert.equals(stub.getCall(0).args.length, 1)
+      assert.same(stub.getCall(0).args[0], config)
+    }
 
   , 'test multiple static mounts string': function () {
       var stub = this.stub()
@@ -62,6 +89,63 @@ buster.testCase('Static', {
       this.replaceSt(stub)
 
       splinksmvc({ 'static':  [ '/foo/bar/', '/baz/bang/', config ] })
+        .init()._splink.byId('server')
+
+      assert.equals(stub.callCount, 3)
+      assert.equals(stub.getCall(0).args, [ '/foo/bar/' ])
+      assert.equals(stub.getCall(1).args, [ '/baz/bang/' ])
+      assert.same(stub.getCall(2).args[0], config)
+    }
+
+  , 'test multiple static(mounts string)': function () {
+      var stub = this.stub()
+        , mount = { mount: 1 }
+        , config = { config: 1 }
+
+      stub.returns(mount)
+      this.replaceSt(stub)
+
+      splinksmvc()
+        .static('/foo/bar/')
+        .static('/baz/bang/')
+        .static(config)
+        .init()._splink.byId('server')
+
+      assert.equals(stub.callCount, 3)
+      assert.equals(stub.getCall(0).args, [ '/foo/bar/' ])
+      assert.equals(stub.getCall(1).args, [ '/baz/bang/' ])
+      assert.same(stub.getCall(2).args[0], config)
+    }
+
+  , 'test multiple static(mounts strings)': function () {
+      var stub = this.stub()
+        , mount = { mount: 1 }
+        , config = { config: 1 }
+
+      stub.returns(mount)
+      this.replaceSt(stub)
+
+      splinksmvc()
+        .static([ '/foo/bar/', '/baz/bang/', config ])
+        .init()._splink.byId('server')
+
+      assert.equals(stub.callCount, 3)
+      assert.equals(stub.getCall(0).args, [ '/foo/bar/' ])
+      assert.equals(stub.getCall(1).args, [ '/baz/bang/' ])
+      assert.same(stub.getCall(2).args[0], config)
+    }
+
+  , 'test multiple static(mounts strings), mixed': function () {
+      var stub = this.stub()
+        , mount = { mount: 1 }
+        , config = { config: 1 }
+
+      stub.returns(mount)
+      this.replaceSt(stub)
+
+      splinksmvc()
+        .static('/foo/bar/')
+        .static([ '/baz/bang/', config ])
         .init()._splink.byId('server')
 
       assert.equals(stub.callCount, 3)
