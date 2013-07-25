@@ -2,7 +2,6 @@ var buster = require('bustermove')
   , assert = buster.assert
   , refute = buster.refute
 
-  , director          = require('director')
   , splinksmvc        = require('../lib/')
   , hijackSplinkScan  = require('./common').hijackSplinkScan
   , restoreSplinkScan = require('./common').restoreSplinkScan
@@ -60,28 +59,6 @@ buster.testCase('Init', {
       , 'test multiple path strings': function () {
           splinksmvc({ scan: [ '/foo/bar/', '/bang.js', '/ping/pong/pang' ] })
           assert.equals(this.scanPaths, [ '/foo/bar/', '/bang.js', '/ping/pong/pang' ])
-        }
-    }
-
-  , 'router options': {
-        'setUp': function () {
-          director.http.Router.prototype._configure = director.http.Router.prototype.configure
-          director.http.Router.prototype.configure = this.spy()
-        }
-
-      , 'test router options configures director': function () {
-          var opt = { opt: 1 }
-          splinksmvc({})
-          assert.equals(director.http.Router.prototype.configure.callCount, 1)
-          director.http.Router.prototype.configure.reset()
-          splinksmvc({ router: opt })
-          // an extra one should be called with our options
-          assert.equals(director.http.Router.prototype.configure.callCount, 2)
-          assert.equals(director.http.Router.prototype.configure.getCall(1).args, [ opt ])
-        }
-
-      , 'tearDown': function () {
-          director.http.Router.prototype.configure = director.http.Router.prototype._configure
         }
     }
 })

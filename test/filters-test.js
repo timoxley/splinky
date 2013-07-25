@@ -1,7 +1,6 @@
 var buster     = require('bustermove')
   , assert     = buster.assert
   , refute     = buster.refute
-  , director   = require('director')
   , extend     = require('util')._extend
 
   , splinksmvc = require('../lib/')
@@ -11,16 +10,6 @@ var buster     = require('bustermove')
 
 buster.testCase('Filters', {
     'setUp': function () {
-      var RouterOrig = this.RouterOrig = director.http.Router
-        , setRouter = function (r) {
-            this.router = r
-          }.bind(this)
-      director.http.Router = function () {
-        setRouter(this)
-        return RouterOrig.apply(this, arguments)
-      }
-      director.http.Router.prototype = RouterOrig.prototype
-
       setupServerMocks.call(this)
       this.serverMock.expects('listen').once()
 
@@ -39,22 +28,26 @@ buster.testCase('Filters', {
           route = null
         }
 
-        splinksmvc(
-            extend({ scan: '/foo/bar/', views: { processor: 'vpstub' } }, config)
-          ).start(function () {
-              var r = this.router.routes
-              if (route) r = r[route]
-              r = r.get
-              assert.equals(typeof r, 'function')
-              r()
-              callback()
-            }.bind(this))
+        var ssmvc = splinksmvc(
+          extend({ scan: '/foo/bar/', views: { processor: 'vpstub' } }, config))
+
+        ssmvc.start(function () {
+          var router = ssmvc._splink.byId('router')
+            , cbstub = this.stub()
+            , r = router._routes.get.filter(function (r) {
+                return route == null || r.route == route
+              })[0]
+
+          assert(r, 'have a route')
+          assert.equals(typeof r.handler, 'function')
+          r.handler()
+          callback()
+        }.bind(this))
       }
     }
 
   , 'tearDown': function () {
       restoreSplinkScan()
-      director.http.Router = this.RouterOrig
     }
 
   , 'single filter is used': function (done) {
@@ -151,7 +144,7 @@ buster.testCase('Filters', {
         assert.equals(filter2.callCount, 0)
         assert.equals(filter3.callCount, 0)
 
-        this.executeController(config, 'foo', function () {
+        this.executeController(config, '/foo', function () {
           assert.equals(controller1.callCount, 1)
           assert.equals(controller2.callCount, 1)
           assert.equals(filter1.callCount, 2)

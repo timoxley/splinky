@@ -2,7 +2,6 @@ var buster   = require('bustermove')
   , assert   = buster.assert
   , refute   = buster.refute
   , path     = require('path')
-  , director = require('director')
 
   , splinksmvc = require('../lib/')
 
@@ -72,19 +71,9 @@ buster.testCase('Static', {
 
   , 'test static used for http requests': {
       'setUp': function () {
-        var RouterOrig = this.RouterOrig = director.http.Router
-          , setRouter = function (r) {
-              this.router = r
-            }.bind(this)
-        director.http.Router = function () {
-          setRouter(this)
-          return RouterOrig.apply(this, arguments)
-        }
-        director.http.Router.prototype = RouterOrig.prototype
       }
 
     , 'tearDown': function () {
-        director.http.Router = this.RouterOrig
       }
 
     , 'exec return true': function (done) {
