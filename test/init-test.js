@@ -2,7 +2,7 @@ var buster = require('bustermove')
   , assert = buster.assert
   , refute = buster.refute
 
-  , splinksmvc        = require('../lib/')
+  , Splinky           = require('../')
   , hijackSplinkScan  = require('./common').hijackSplinkScan
   , restoreSplinkScan = require('./common').restoreSplinkScan
 
@@ -14,7 +14,7 @@ buster.testCase('Init', {
             , serverMock = this.mock(server)
           httpMock.expects('createServer').once().returns(server)
           serverMock.expects('listen').once().withExactArgs(80)
-          splinksmvc({}).start(done)
+          Splinky({}).start(done)
         }
 
       , 'test listen, custom port in options': function (done) {
@@ -23,7 +23,7 @@ buster.testCase('Init', {
             , serverMock = this.mock(server)
           httpMock.expects('createServer').once().returns(server)
           serverMock.expects('listen').once().withExactArgs(8080)
-          splinksmvc({ port: 8080 }).start(done)
+          Splinky({ port: 8080 }).start(done)
         }
 
       , 'test listen, custom port in start() argument': function (done) {
@@ -32,7 +32,7 @@ buster.testCase('Init', {
             , serverMock = this.mock(server)
           httpMock.expects('createServer').once().returns(server)
           serverMock.expects('listen').once().withExactArgs(8888)
-          splinksmvc({ }).start(8888, done)
+          Splinky({ }).start(8888, done)
         }
     }
 
@@ -47,27 +47,27 @@ buster.testCase('Init', {
       , 'tearDown': restoreSplinkScan
 
       , 'test scan argument': function () {
-          splinksmvc({}).init()
+          Splinky({}).init()
           assert.equals(this.scanPaths, [])
         }
 
       , 'test single path string': function () {
-          splinksmvc({ scan: '/foo/bar/' }).init()
+          Splinky({ scan: '/foo/bar/' }).init()
           assert.equals(this.scanPaths, [ '/foo/bar/' ])
         }
 
       , 'test single path scan(string)': function () {
-          splinksmvc().scan('/foo/bar/').init()
+          Splinky().scan('/foo/bar/').init()
           assert.equals(this.scanPaths, [ '/foo/bar/' ])
         }
 
       , 'test multiple path strings': function () {
-          splinksmvc({ scan: [ '/foo/bar/', '/bang.js', '/ping/pong/pang' ] }).init()
+          Splinky({ scan: [ '/foo/bar/', '/bang.js', '/ping/pong/pang' ] }).init()
           assert.equals(this.scanPaths, [ '/foo/bar/', '/bang.js', '/ping/pong/pang' ])
         }
 
       , 'test multiple path scan(strings)': function () {
-          splinksmvc().scan([ '/foo/bar/', '/bang.js' ]).scan('/ping/pong/pang').init()
+          Splinky().scan([ '/foo/bar/', '/bang.js' ]).scan('/ping/pong/pang').init()
           assert.equals(this.scanPaths, [ '/foo/bar/', '/bang.js', '/ping/pong/pang' ])
         }
     }

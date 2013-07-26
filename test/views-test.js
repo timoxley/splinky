@@ -3,7 +3,7 @@ var buster            = require('bustermove')
   , refute            = buster.refute
   , consolidate       = require('consolidate')
   , fs                = require('fs')
-  , splinksmvc        = require('../lib/')
+  , Splinky           = require('../')
   , hijackSplinkScan  = require('./common').hijackSplinkScan
   , restoreSplinkScan = require('./common').restoreSplinkScan
 
@@ -20,7 +20,7 @@ buster.testCase('Views', {
         , ssmvc
         , viewfn
 
-      ssmvc = splinksmvc({}).init()
+      ssmvc = Splinky({}).init()
 
       viewfn = ssmvc._splink.byId('viewManager')()
 
@@ -40,7 +40,7 @@ buster.testCase('Views', {
         , ssmvc
         , viewfn
 
-      ssmvc = splinksmvc({
+      ssmvc = Splinky({
           'views': {
               path: '/a/path/to/views'
             , suffix: 'swag'
@@ -73,7 +73,7 @@ buster.testCase('Views', {
         , ssmvc
         , viewfn
 
-      ssmvc = splinksmvc().views({
+      ssmvc = Splinky().views({
           path: '/a/path/to/views'
         , suffix: 'swag'
         , processor: stub
@@ -106,7 +106,7 @@ buster.testCase('Views', {
           this.ssmvc
           this.viewfn
 
-          this.ssmvc = splinksmvc({
+          this.ssmvc = Splinky({
               'views': [
                   {
                       path: '/a/path/to/views'
@@ -184,7 +184,7 @@ buster.testCase('Views', {
       this.fsMock.expects('stat', '/a/path/to/views/foobar.swig').callsArgWith(1, null, { isFile: function () { return true } })
       this.consolidateMock.expects('swig', '/a/path/to/views/foobar.swig').callsArgWith(2, null, data)
 
-      ssmvc = splinksmvc({
+      ssmvc = Splinky({
           'views': {
               path: '/a/path/to/views'
             , suffix: 'swig'
@@ -214,7 +214,7 @@ buster.testCase('Views', {
         splink.reg(stub, 'vpid')
       })
 
-      ssmvc = splinksmvc({
+      ssmvc = Splinky({
           'views': {
               path: '/a/path/to/views'
             , suffix: 'swag'
@@ -247,7 +247,7 @@ buster.testCase('Views', {
         , ssmvc
         , viewfn
 
-      ssmvc = splinksmvc({
+      ssmvc = Splinky({
           'views': { processor: stub }
       }).init()
 
@@ -273,7 +273,7 @@ buster.testCase('Views', {
         , ssmvc
         , viewfn
 
-      ssmvc = splinksmvc({
+      ssmvc = Splinky({
           'views': { processor: 'toStringViewProcessor' }
       }).init()
 
@@ -294,7 +294,7 @@ buster.testCase('Views', {
         , ssmvc
         , viewfn
 
-      ssmvc = splinksmvc({
+      ssmvc = Splinky({
           'views': { processor: 'jsonViewProcessor' }
       }).init()
 
@@ -320,7 +320,7 @@ buster.testCase('Views', {
       stub1.callsArgWith(2, null, data)
       stub2.callsArgWith(2, null, data)
 
-      ssmvc = splinksmvc({
+      ssmvc = Splinky({
           'views': {
               path: '/a/path/to/views'
             , suffix: 'swag'

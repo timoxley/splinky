@@ -3,7 +3,7 @@ var buster     = require('bustermove')
   , refute     = buster.refute
   , extend     = require('util')._extend
 
-  , splinksmvc = require('../lib/')
+  , Splinky           = require('../')
   , hijackSplinkScan  = require('./common').hijackSplinkScan
   , restoreSplinkScan = require('./common').restoreSplinkScan
   , setupServerMocks  = require('./common').setupServerMocks
@@ -28,7 +28,7 @@ buster.testCase('Filters', {
           route = null
         }
 
-        var ssmvc = splinksmvc(
+        var ssmvc = Splinky(
           extend({ scan: '/foo/bar/', views: { processor: 'vpstub' } }, config))
 
         ssmvc.start(function () {

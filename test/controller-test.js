@@ -3,7 +3,7 @@ var buster     = require('bustermove')
   , refute     = buster.refute
   , fs         = require('fs')
 
-  , splinksmvc = require('../lib/')
+  , Splinky           = require('../')
   , hijackSplinkScan  = require('./common').hijackSplinkScan
   , restoreSplinkScan = require('./common').restoreSplinkScan
   , setupServerMocks  = require('./common').setupServerMocks
@@ -73,7 +73,7 @@ buster.testCase('Controllers', {
         splink.reg(controllerStub)
       })
 
-      ssmvc = splinksmvc(
+      ssmvc = Splinky(
         { scan: '/foo/bar/', views: { processor: 'toStringViewProcessor' } }
       )
       ssmvc.start(function () {
@@ -107,7 +107,7 @@ buster.testCase('Controllers', {
         splink.reg(controllerStub)
       })
 
-      ssmvc = splinksmvc(
+      ssmvc = Splinky(
           { scan: '/foo/bar/', views: { processor: 'toStringViewProcessor' } }
       )
       ssmvc.start(function () {
@@ -141,7 +141,7 @@ buster.testCase('Controllers', {
         splink.reg(controllerStub)
       })
 
-      ssmvc = splinksmvc(
+      ssmvc = Splinky(
           { scan: '/foo/bar/', views: { processor: 'toStringViewProcessor' } }
       )
       ssmvc.start(function () {
@@ -178,7 +178,7 @@ buster.testCase('Controllers', {
         splink.reg(controllerStub)
       })
 
-      ssmvc = splinksmvc(
+      ssmvc = Splinky(
           { scan: '/foo/bar/', views: { processor: 'toStringViewProcessor' } }
       )
       ssmvc.start(function () {
@@ -223,7 +223,7 @@ buster.testCase('Controllers', {
         splink.reg(controllerStub2)
       })
 
-      ssmvc = splinksmvc(
+      ssmvc = Splinky(
           { scan: '/foo/bar/', views: { processor: 'toStringViewProcessor' } }
       )
       ssmvc.start(function () {
@@ -262,7 +262,7 @@ buster.testCase('Controllers', {
         splink.reg(controllerStub)
       })
 
-      ssmvc = splinksmvc(
+      ssmvc = Splinky(
           { scan: '/foo/bar/', views: { processor: 'toStringViewProcessor' } }
       )
       ssmvc.start(function () {
@@ -301,7 +301,7 @@ buster.testCase('Controllers', {
       })
       fsMock.expects('stat', '/foobarViewbar.swag').callsArgWith(1, null, { isFile: function () { return true } })
 
-      ssmvc = splinksmvc({
+      ssmvc = Splinky({
           scan: '/foo/bar/'
         , views: {
               path: '/'

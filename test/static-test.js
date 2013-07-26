@@ -3,7 +3,7 @@ var buster   = require('bustermove')
   , refute   = buster.refute
   , path     = require('path')
 
-  , splinksmvc = require('../lib/')
+  , Splinky = require('../')
 
 buster.testCase('Static', {
     'setUp': function () {
@@ -20,7 +20,7 @@ buster.testCase('Static', {
   , 'test no static': function () {
       var spy = this.spy()
       this.replaceSt(spy)
-      splinksmvc({}).init()._splink.byId('server')
+      Splinky({}).init()._splink.byId('server')
       assert.equals(spy.callCount, 0)
     }
 
@@ -31,7 +31,7 @@ buster.testCase('Static', {
       stub.returns(mount)
       this.replaceSt(stub)
 
-      splinksmvc({ 'static': '/foo/bar/' }).init()._splink.byId('server')
+      Splinky({ 'static': '/foo/bar/' }).init()._splink.byId('server')
 
       assert.equals(stub.callCount, 1)
       assert.equals(stub.getCall(0).args, [ '/foo/bar/' ])
@@ -44,7 +44,7 @@ buster.testCase('Static', {
       stub.returns(mount)
       this.replaceSt(stub)
 
-      splinksmvc().static('/foo/bar/').init()._splink.byId('server')
+      Splinky().static('/foo/bar/').init()._splink.byId('server')
 
       assert.equals(stub.callCount, 1)
       assert.equals(stub.getCall(0).args, [ '/foo/bar/' ])
@@ -58,7 +58,7 @@ buster.testCase('Static', {
       stub.returns(mount)
       this.replaceSt(stub)
 
-      splinksmvc({ 'static': config }).init()._splink.byId('server')
+      Splinky({ 'static': config }).init()._splink.byId('server')
 
       assert.equals(stub.callCount, 1)
       assert.equals(stub.getCall(0).args.length, 1)
@@ -73,7 +73,7 @@ buster.testCase('Static', {
       stub.returns(mount)
       this.replaceSt(stub)
 
-      splinksmvc().static(config).init()._splink.byId('server')
+      Splinky().static(config).init()._splink.byId('server')
 
       assert.equals(stub.callCount, 1)
       assert.equals(stub.getCall(0).args.length, 1)
@@ -88,7 +88,7 @@ buster.testCase('Static', {
       stub.returns(mount)
       this.replaceSt(stub)
 
-      splinksmvc({ 'static':  [ '/foo/bar/', '/baz/bang/', config ] })
+      Splinky({ 'static':  [ '/foo/bar/', '/baz/bang/', config ] })
         .init()._splink.byId('server')
 
       assert.equals(stub.callCount, 3)
@@ -105,7 +105,7 @@ buster.testCase('Static', {
       stub.returns(mount)
       this.replaceSt(stub)
 
-      splinksmvc()
+      Splinky()
         .static('/foo/bar/')
         .static('/baz/bang/')
         .static(config)
@@ -125,7 +125,7 @@ buster.testCase('Static', {
       stub.returns(mount)
       this.replaceSt(stub)
 
-      splinksmvc()
+      Splinky()
         .static([ '/foo/bar/', '/baz/bang/', config ])
         .init()._splink.byId('server')
 
@@ -143,7 +143,7 @@ buster.testCase('Static', {
       stub.returns(mount)
       this.replaceSt(stub)
 
-      splinksmvc()
+      Splinky()
         .static('/foo/bar/')
         .static([ '/baz/bang/', config ])
         .init()._splink.byId('server')
@@ -177,7 +177,7 @@ buster.testCase('Static', {
         this.replaceSt(stub)
         mount.callsArg(2) // static resource not found
 
-        splinksmvc({ 'static': config }).init()._splink.byId('server')
+        Splinky({ 'static': config }).init()._splink.byId('server')
 
         handler = expectation.getCall(0).args[0]
 
@@ -206,7 +206,7 @@ buster.testCase('Static', {
         stub.returns(mount)
         this.replaceSt(stub)
 
-        splinksmvc({ 'static': config }).init()._splink.byId('server')
+        Splinky({ 'static': config }).init()._splink.byId('server')
 
         handler = expectation.getCall(0).args[0]
 
@@ -243,7 +243,7 @@ buster.testCase('Static', {
         mount1.callsArg(2) // static not resource found
         mount2.callsArg(2) // static not resource found
 
-        splinksmvc({ 'static': [ config1, config2, config3 ] })
+        Splinky({ 'static': [ config1, config2, config3 ] })
           .init()._splink.byId('server')
 
         handler = expectation.getCall(0).args[0]
