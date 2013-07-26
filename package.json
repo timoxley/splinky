@@ -1,6 +1,6 @@
 {
     "name"            : "splinky"
-  , "description"     : "Lightweight Node web server framework with an MVC and IoC feel"
+  , "description"     : "A lightweight Node web server framework with an MVC and IoC feel"
   , "authors": [
         "Rod Vagg @rvagg <rod@vagg.org> (https://github.com/rvagg)"
     ]
