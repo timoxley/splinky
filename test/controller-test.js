@@ -77,7 +77,7 @@ buster.testCase('Controllers', {
         { scan: '/foo/bar/', views: { processor: 'toStringViewProcessor' } }
       )
       ssmvc.start(function () {
-        var router = ssmvc._splink.byId('router')
+        var router = ssmvc._internalSplink.byId('router')
           , cbstub = this.stub()
 
         assert(Array.isArray(router._routes.get))
@@ -111,7 +111,7 @@ buster.testCase('Controllers', {
           { scan: '/foo/bar/', views: { processor: 'toStringViewProcessor' } }
       )
       ssmvc.start(function () {
-        var router = ssmvc._splink.byId('router')
+        var router = ssmvc._internalSplink.byId('router')
           , cbstub = this.stub()
 
         assert(Array.isArray(router._routes.get))
@@ -145,7 +145,7 @@ buster.testCase('Controllers', {
           { scan: '/foo/bar/', views: { processor: 'toStringViewProcessor' } }
       )
       ssmvc.start(function () {
-        var router = ssmvc._splink.byId('router')
+        var router = ssmvc._internalSplink.byId('router')
           , cbstub = this.stub()
 
         assert(Array.isArray(router._routes.post))
@@ -182,7 +182,7 @@ buster.testCase('Controllers', {
           { scan: '/foo/bar/', views: { processor: 'toStringViewProcessor' } }
       )
       ssmvc.start(function () {
-        var router = ssmvc._splink.byId('router')
+        var router = ssmvc._internalSplink.byId('router')
 
         assert(Array.isArray(router._routes.get))
         assert.equals(router._routes.get.length, 3)
@@ -227,7 +227,7 @@ buster.testCase('Controllers', {
           { scan: '/foo/bar/', views: { processor: 'toStringViewProcessor' } }
       )
       ssmvc.start(function () {
-        var router = ssmvc._splink.byId('router')
+        var router = ssmvc._internalSplink.byId('router')
 
         assert(Array.isArray(router._routes.get))
         assert.equals(router._routes.get.length, 2)
@@ -266,7 +266,7 @@ buster.testCase('Controllers', {
           { scan: '/foo/bar/', views: { processor: 'toStringViewProcessor' } }
       )
       ssmvc.start(function () {
-        var router = ssmvc._splink.byId('router')
+        var router = ssmvc._internalSplink.byId('router')
           , req    = { method: 'GET', url: '/bing/bang' }
 
         assert(Array.isArray(router._routes.get))
@@ -311,7 +311,7 @@ buster.testCase('Controllers', {
           }
       })
       ssmvc.start(function () {
-        var router = ssmvc._splink.byId('router')
+        var router = ssmvc._internalSplink.byId('router')
 
         assert(Array.isArray(router._routes.get))
         assert.equals(router._routes.get.length, 1)

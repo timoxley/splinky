@@ -32,7 +32,7 @@ buster.testCase('Filters', {
           extend({ scan: '/foo/bar/', views: { processor: 'vpstub' } }, config))
 
         ssmvc.start(function () {
-          var router = ssmvc._splink.byId('router')
+          var router = ssmvc._internalSplink.byId('router')
             , cbstub = this.stub()
             , r = router._routes.get.filter(function (r) {
                 return route == null || r.route == route
