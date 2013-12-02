@@ -1,6 +1,6 @@
 var buster     = require('bustermove')
   , assert     = buster.assert
-  , refute     = buster.refute
+//  , refute     = buster.refute
   , fs         = require('fs')
 
   , Splinky           = require('../')
@@ -253,7 +253,6 @@ buster.testCase('Controllers', {
       var controllerStub = this.stub()
         , resStub        = this.createResponseStub()
         , expectedBody   = 'this is some expected content'
-        , ctx = { ctx: 'this is the context!' }
         , ssmvc
 
       controllerStub.$config = { category: 'controller', route: '/:foo/:bar' }
@@ -323,6 +322,34 @@ buster.testCase('Controllers', {
         assert.equals(controllerStub.callCount, 1)
         assert.equals(viewSpy.callCount, 1)
         // don't have to verify the resStub, viewSpy doesn't return
+        done()
+      }.bind(this))
+    }
+
+  , 'test controller can add metadata to context': function (done) {
+      var controllerStub = this.stub()
+        , resStub        = this.createResponseStub()
+        , splinky        = Splinky({})
+
+
+      controllerStub.$config = {
+          category      : 'controller'
+        , route         : '/foo'
+        , context       : { p1: 'p1', p2: true, p3: { complex: 'object' } }
+        , viewProcessor : 'toStringViewProcessor'
+      }
+      splinky.reg(controllerStub)
+
+      splinky.start(function () {
+        var router = splinky._internalSplink.byId('router')
+        router.dispatch({ method: 'GET', url: '/foo' }, resStub, function () {
+          assert(false, 'should not have got callback')
+        })
+        assert.equals(controllerStub.callCount, 1)
+        assert(controllerStub.thisValues[0], 'called with context')
+        assert.equals('p1', controllerStub.thisValues[0].p1, 'called with context properties')
+        assert(true === controllerStub.thisValues[0].p2, 'called with context properties')
+        assert.equals({ complex: 'object' }, controllerStub.thisValues[0].p3, 'called with context properties')
         done()
       }.bind(this))
     }

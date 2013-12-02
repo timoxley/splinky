@@ -353,4 +353,49 @@ buster.testCase('Filters', {
         }, 10)
       }.bind(this))
     }
+
+  , 'test controller custom context used for filter invocation': function (done) {
+      var calls      = []
+        , mkfilter   = function (id) {
+            return function (req, res, next) {
+              calls.push({ id: id, ctx: this })
+              // also tests async filters
+              process.nextTick(next)
+            }
+          }
+        , filter1    = mkfilter('one')
+        , filter2    = mkfilter('two')
+        , controller = this.spy()
+        , viewStub   = this.stub()
+
+      this.registerController(
+            { filters: [ 'filter02' ], context: { p1: 'p1', p2: true, p3: { complex: 'object' } } }
+          , controller
+          , viewStub
+          , function (err, splink) {
+              splink.reg(filter1, { id: 'filter01' })
+              splink.reg(filter2, { id: 'filter02' })
+            }
+      )
+
+      this.executeController({ filters: [ 'filter01' ] }, function () {
+        setTimeout(function () { // unfortunate hack, need a better way of intercepting the controller call
+          assert.equals(controller.callCount, 1)
+          // all should be properly ordered because they are all from ids
+          assert.equals(calls.map(function (c) { return c.id }), [ 'one', 'two' ])
+          assert(calls[0].ctx, 'called with context')
+          assert.equals('p1', calls[0].ctx.p1, 'called with context properties')
+          assert(true === calls[0].ctx.p2, 'called with context properties')
+          assert.equals({ complex: 'object' }, calls[0].ctx.p3, 'called with context properties')
+          assert(calls[1].ctx, 'called with context')
+          assert.equals('p1', calls[1].ctx.p1, 'called with context properties')
+          assert(true === calls[1].ctx.p2, 'called with context properties')
+          assert.equals({ complex: 'object' }, calls[1].ctx.p3, 'called with context properties')
+          done()
+        }, 10)
+      }.bind(this))
+    }
+
+  // TODO: test for duplicate filters! if a controller specifies a filter it shouldn't be duplicated
+  // from the global config, currently it is
 })
