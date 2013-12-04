@@ -57,6 +57,8 @@ buster.testCase('Views', {
 
       viewfn('foobar', model, function (err, _data) {
         refute(err)
+        console.error('_data', _data)
+        console.error('data', data)
         assert.same(_data, data)
         assert.equals(stub.callCount, 1)
         assert.equals(stub.getCall(0).args[0], '/a/path/to/views/foobar.swag')

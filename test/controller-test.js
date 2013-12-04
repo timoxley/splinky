@@ -331,7 +331,6 @@ buster.testCase('Controllers', {
         , resStub        = this.createResponseStub()
         , splinky        = Splinky({})
 
-
       controllerStub.$config = {
           category      : 'controller'
         , route         : '/foo'
