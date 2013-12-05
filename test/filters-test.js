@@ -1,7 +1,6 @@
 var buster     = require('bustermove')
   , assert     = buster.assert
-  , refute     = buster.refute
-  , extend     = require('util')._extend
+  , extend     = require('xtend')
 
   , Splinky           = require('../')
   , hijackSplinkScan  = require('./common').hijackSplinkScan
@@ -33,7 +32,6 @@ buster.testCase('Filters', {
 
         ssmvc.start(function () {
           var router = ssmvc._internalSplink.byId('router')
-            , cbstub = this.stub()
             , r = router._routes.get.filter(function (r) {
                 return route == null || r.route == route
               })[0]
@@ -56,7 +54,7 @@ buster.testCase('Filters', {
         , config     = { filters: [ filter ] }
         , controller = this.spy()
 
-      filter.callsArg(2)
+      filter.callsArg(1)
 
       this.registerController({}, controller, viewStub)
       this.executeController(config, function () {
@@ -74,9 +72,9 @@ buster.testCase('Filters', {
         , config     = { filters: [ filter1, filter2, filter3 ] }
         , controller = this.spy()
 
-      filter1.callsArg(2)
-      filter2.callsArg(2)
-      filter3.callsArg(2)
+      filter1.callsArg(1)
+      filter2.callsArg(1)
+      filter3.callsArg(1)
 
       this.registerController({}, controller, viewStub)
       this.executeController(config, function () {
@@ -96,9 +94,9 @@ buster.testCase('Filters', {
         , config     = { filters: [ filter1, [ filter2, filter3 ] ] }
         , controller = this.spy()
 
-      filter1.callsArg(2)
-      filter2.callsArg(2)
-      filter3.callsArg(2)
+      filter1.callsArg(1)
+      filter2.callsArg(1)
+      filter3.callsArg(1)
 
       this.registerController({}, controller, viewStub)
       this.executeController(config, function () {
@@ -119,9 +117,9 @@ buster.testCase('Filters', {
         , controller1 = this.spy()
         , controller2 = this.spy()
 
-      filter1.callsArg(2)
-      filter2.callsArg(2)
-      filter3.callsArg(2)
+      filter1.callsArg(1)
+      filter2.callsArg(1)
+      filter3.callsArg(1)
 
       // we're going to run these twice so do an extra expects() beyond the ones already set up
       this.httpMock.expects('createServer').once().returns(this.server)
@@ -161,10 +159,27 @@ buster.testCase('Filters', {
         , viewStub   = this.stub()
         , controller = this.spy()
 
-      filter.callsArg(2)
+      filter.callsArg(1)
 
       this.registerController({}, controller, viewStub, function (err, splink) {
         splink.reg(filter, { category: 'filter' })
+      })
+      this.executeController({}, function () {
+        assert.equals(controller.callCount, 1)
+        assert.equals(filter.callCount, 1)
+        done()
+      }.bind(this))
+    }
+
+  , 'single style=connect filter from splink scan': function (done) {
+      var filter     = this.stub()
+        , viewStub   = this.stub()
+        , controller = this.spy()
+
+      filter.callsArg(2)
+
+      this.registerController({}, controller, viewStub, function (err, splink) {
+        splink.reg(filter, { category: 'filter', style: 'connect' })
       })
       this.executeController({}, function () {
         assert.equals(controller.callCount, 1)
@@ -180,9 +195,9 @@ buster.testCase('Filters', {
         , viewStub   = this.stub()
         , controller = this.spy()
 
-      filter1.callsArg(2)
-      filter2.callsArg(2)
-      filter3.callsArg(2)
+      filter1.callsArg(1)
+      filter2.callsArg(1)
+      filter3.callsArg(1)
 
       this.registerController({}, controller, viewStub, function (err, splink) {
         splink.reg(filter1, { category: 'filter' })
@@ -198,13 +213,42 @@ buster.testCase('Filters', {
       }.bind(this))
     }
 
+  , 'multiple mixed-style filters from splink scan': function (done) {
+      var filter1    = this.stub()
+        , filter2    = this.stub()
+        , filter3    = this.stub()
+        , filter4    = this.stub()
+        , viewStub   = this.stub()
+        , controller = this.spy()
+
+      filter1.callsArg(1)
+      filter2.callsArg(2)
+      filter3.callsArg(1)
+      filter4.callsArg(2)
+
+      this.registerController({}, controller, viewStub, function (err, splink) {
+        splink.reg(filter1, { category: 'filter' })
+        splink.reg(filter2, { category: 'filter', style: 'connect' })
+        splink.reg(filter3, { category: 'filter' })
+        splink.reg(filter4, { category: 'filter', style: 'connect' })
+      })
+      this.executeController({}, function () {
+        assert.equals(controller.callCount, 1)
+        assert.equals(filter1.callCount, 1)
+        assert.equals(filter2.callCount, 1)
+        assert.equals(filter3.callCount, 1)
+        assert.equals(filter4.callCount, 1)
+        done()
+      }.bind(this))
+    }
+
   , 'global filter ordering from config': function (done) {
       var calls      = []
         , mkfilter   = function (id) {
-            return function (req, res, next) {
+            return function (context, callback) {
               calls.push(id)
               // also tests async filters
-              process.nextTick(next)
+              process.nextTick(callback)
             }
           }
         , filter1    = mkfilter('one')
@@ -227,10 +271,10 @@ buster.testCase('Filters', {
   , 'global filter ordering from scan': function (done) {
       var calls      = []
         , mkfilter   = function (id) {
-            return function (req, res, next) {
+            return function (context, callback) {
               calls.push(id)
               // also tests async filters
-              process.nextTick(next)
+              process.nextTick(callback)
             }
           }
         , filter1    = mkfilter('one')
@@ -258,10 +302,10 @@ buster.testCase('Filters', {
   , 'global filter ordering from config & scan': function (done) {
       var calls      = []
         , mkfilter   = function (id) {
-            return function (req, res, next) {
+            return function (context, callback) {
               calls.push(id)
               // also tests async filters
-              process.nextTick(next)
+              process.nextTick(callback)
             }
           }
         , filter1    = mkfilter('one')
@@ -291,10 +335,10 @@ buster.testCase('Filters', {
   , 'global filter ordering from config & scan & controller': function (done) {
       var calls      = []
         , mkfilter   = function (id) {
-            return function (req, res, next) {
+            return function (context, callback) {
               calls.push(id)
               // also tests async filters
-              process.nextTick(next)
+              process.nextTick(callback)
             }
           }
         , filter1    = mkfilter('one')
@@ -323,10 +367,10 @@ buster.testCase('Filters', {
   , 'global filter ordering from config & scan & controller, all from splink ids': function (done) {
       var calls      = []
         , mkfilter   = function (id) {
-            return function (req, res, next) {
+            return function (context, callback) {
               calls.push(id)
               // also tests async filters
-              process.nextTick(next)
+              process.nextTick(callback)
             }
           }
         , filter1    = mkfilter('one')
@@ -357,10 +401,10 @@ buster.testCase('Filters', {
   , 'test controller custom context used for filter invocation': function (done) {
       var calls      = []
         , mkfilter   = function (id) {
-            return function (req, res, next) {
+            return function (context, callback) {
               calls.push({ id: id, ctx: this })
               // also tests async filters
-              process.nextTick(next)
+              process.nextTick(callback)
             }
           }
         , filter1    = mkfilter('one')
@@ -391,6 +435,75 @@ buster.testCase('Filters', {
           assert.equals('p1', calls[1].ctx.p1, 'called with context properties')
           assert(true === calls[1].ctx.p2, 'called with context properties')
           assert.equals({ complex: 'object' }, calls[1].ctx.p3, 'called with context properties')
+          done()
+        }, 10)
+      }.bind(this))
+    }
+
+  , 'test filter can invoke a view and bypass controller': function (done) {
+      var mkfilter   = function () {
+            return function (context, callback) {
+              // also tests async filters
+              process.nextTick(function () {
+                context.model.foobar = 'doobar'
+                callback(null, 'someview')
+              })
+            }
+          }
+        , filter1    = mkfilter('one')
+        , controller = this.spy()
+        , viewStub   = this.stub()
+
+      this.registerController(
+            { }
+          , controller
+          , viewStub
+          , function (err, splink) {
+              splink.reg(filter1, { id: 'filter01' })
+            }
+      )
+
+      this.executeController({ filters: [ 'filter01' ] }, function () {
+        setTimeout(function () { // unfortunate hack, need a better way of intercepting the controller call
+          assert.equals(controller.callCount, 0) // controller not invoked
+          assert.equals(viewStub.callCount, 1) // but view is invoked
+          assert.equals(viewStub.getCall(0).args[0], 'someview')
+          assert.equals(viewStub.getCall(0).args[1], { foobar: 'doobar' })
+          done()
+        }, 10)
+      }.bind(this))
+    }
+
+    // this goes for everything put into the external splink too, should be able to depend on "options"
+  , 'test filter can access global "options"': function (done) {
+      var expectedOptions = { options: 'obj', filters: [ 'filter01' ] }
+        , filterStub      = this.spy()
+        , filterOptions   = null
+        , filterFact      = function () {
+            filterOptions = this.options
+            return filterStub
+          }
+        , controller      = this.spy()
+        , viewStub        = this.stub()
+
+      this.registerController(
+            { }
+          , controller
+          , viewStub
+          , function (err, splink) {
+              splink.reg(filterFact, { id: 'filter01', depends: [ 'options' ], type: 'factory' })
+            }
+      )
+
+      this.executeController(extend(expectedOptions), function () {
+        setTimeout(function () { // unfortunate hack, need a better way of intercepting the controller call
+          assert.equals(controller.callCount, 0) // controller not invoked
+          assert.equals(viewStub.callCount, 0) // but view is invoked
+          assert.equals(filterStub.callCount, 1)
+          assert(filterOptions, 'got "options" object in filter')
+          // can't deepEquals the whole object because executeController() adds more cruft
+          assert.equals(expectedOptions.options, filterOptions.options, 'filter got global options')
+          assert.equals(expectedOptions.filters, filterOptions.filters, 'filter got global options')
           done()
         }, 10)
       }.bind(this))

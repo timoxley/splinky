@@ -17,7 +17,8 @@
     "splink": "~0.0.1",
     "st": "~0.1.2",
     "consolidate": "~0.5.0",
-    "paramify": "~0.1.0"
+    "paramify": "~0.1.0",
+    "xtend": "~2.1.1"
   },
   "devDependencies": {
     "bustermove": "*",
