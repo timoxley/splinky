@@ -17,7 +17,7 @@
     "splink": "~0.0.1",
     "st": "~0.2.3",
     "consolidate": "~0.10.0",
-    "paramify": "~0.1.1",
+    "paramify": "git://github.com/rvagg/paramify.git#regex",
     "xtend": "~2.1.1"
   },
   "devDependencies": {
