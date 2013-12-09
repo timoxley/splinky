@@ -352,4 +352,99 @@ buster.testCase('Controllers', {
         done()
       }.bind(this))
     }
+
+  , 'single controller for multiple methods attaches to router': function (done) {
+      var controllerStub = this.stub()
+        , resStub        = this.createResponseStub()
+        , expectedBody   = 'this is some expected content'
+        , ssmvc
+
+      controllerStub.$config = {
+          category : 'controller'
+        , route    : '/foo'
+        , method   : [ 'post', 'get' ]
+      }
+      controllerStub.returns(expectedBody)
+      hijackSplinkScan(function (splink) {
+        splink.reg(controllerStub)
+      })
+
+      ssmvc = Splinky(
+          { scan: '/foo/bar/', views: { processor: 'toStringViewProcessor' } }
+      )
+      ssmvc.start(function () {
+        var router = ssmvc._internalSplink.byId('router')
+
+        assert(Array.isArray(router._routes.get))
+        assert.equals(router._routes.get.length, 1, 'has 1 get route')
+        assert.equals(router._routes.post.length, 1, 'has 1 post route')
+        assert.equals(controllerStub.callCount, 0)
+        router.dispatch({ method: 'GET', url: '/foo' }, resStub, function () {
+          assert(false, 'should not have got callback')
+        })
+        assert.equals(controllerStub.callCount, 1)
+        this.verifyResponseStub(resStub, expectedBody)
+        router.dispatch({ method: 'POST', url: '/foo' }, resStub, function () {
+          assert(false, 'should not have got callback')
+        })
+        assert.equals(controllerStub.callCount, 2)
+        this.verifyResponseStub(resStub, expectedBody, 2)
+        done()
+      }.bind(this))
+    }
+
+  , 'single controller for multiple methods and routes attaches to router': function (done) {
+      var controllerStub = this.stub()
+        , resStub        = this.createResponseStub()
+        , expectedBody   = 'this is some expected content'
+        , ssmvc
+
+      controllerStub.$config = {
+          category : 'controller'
+        , route    : [ '/foo', '/bar' ]
+        , method   : [ 'post', 'get' ]
+      }
+      controllerStub.returns(expectedBody)
+      hijackSplinkScan(function (splink) {
+        splink.reg(controllerStub)
+      })
+
+      ssmvc = Splinky(
+          { scan: '/foo/bar/', views: { processor: 'toStringViewProcessor' } }
+      )
+      ssmvc.start(function () {
+        var router = ssmvc._internalSplink.byId('router')
+
+        assert(Array.isArray(router._routes.get))
+        assert.equals(router._routes.get.length, 2, 'has 2 get routes')
+        assert.equals(router._routes.post.length, 2, 'has 2 post routes')
+        assert.equals(controllerStub.callCount, 0)
+
+        router.dispatch({ method: 'GET', url: '/foo' }, resStub, function () {
+          assert(false, 'should not have got callback')
+        })
+        assert.equals(controllerStub.callCount, 1)
+        this.verifyResponseStub(resStub, expectedBody)
+
+        router.dispatch({ method: 'GET', url: '/bar' }, resStub, function () {
+          assert(false, 'should not have got callback')
+        })
+        assert.equals(controllerStub.callCount, 2)
+        this.verifyResponseStub(resStub, expectedBody, 2)
+
+        router.dispatch({ method: 'POST', url: '/foo' }, resStub, function () {
+          assert(false, 'should not have got callback')
+        })
+        assert.equals(controllerStub.callCount, 3)
+        this.verifyResponseStub(resStub, expectedBody, 3)
+
+        router.dispatch({ method: 'POST', url: '/bar' }, resStub, function () {
+          assert(false, 'should not have got callback')
+        })
+        assert.equals(controllerStub.callCount, 4)
+        this.verifyResponseStub(resStub, expectedBody, 4)
+
+        done()
+      }.bind(this))
+    }
 })
